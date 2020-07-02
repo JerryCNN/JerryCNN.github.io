@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>我的第一篇文章</title>
+    <url>/2020/07/01/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="The-first-day-of-Web-Blogging-2020-7-1"><a href="#The-first-day-of-Web-Blogging-2020-7-1" class="headerlink" title="The first day of Web Blogging 2020/7/1"></a>The first day of Web Blogging 2020/7/1</h2><p>Hello everyone, this is Jerry Cai, a senior high schooler in Bullis school. I am interested in programming and would like to be a algorithm engineer in the future.</p>
+<p>I hope Covid-19 will be gone soon, and everyone in my grade will have a pleasant college applying season !!!</p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>]]></content>
+  </entry>
+</search>
