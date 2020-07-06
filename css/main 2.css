@@ -1200,7 +1200,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #8b624a;
+  background: #7808ff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2623,12 +2623,6 @@ ul.breadcrumb li + li:last-child {
     margin: 8px 0 0;
   }
 }
-body {
-  background: Linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #24d5ab);
-  position: relative;
-  background-size: 700% 700%;
-  animation: change 8s ease-in-out infinite;
-}
 .brand {
   color: #15bed1;
 }
@@ -2657,7 +2651,7 @@ canvas {
 .back-to-top {
   right: 60px;
   width: 70px;
-  height: 670px;
+  height: 900px;
   top: -900px;
   bottom: unset;
   transition: all 0.5s ease-in-out;
@@ -2669,48 +2663,4 @@ canvas {
 .back-to-top.back-to-top-on {
   bottom: unset;
   top: calc(100vh - 900px - 200px);
-}
-@-moz-keyframes change {
-  0% {
-    background-position: 0 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
-@-webkit-keyframes change {
-  0% {
-    background-position: 0 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
-@-o-keyframes change {
-  0% {
-    background-position: 0 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
-}
-@keyframes change {
-  0% {
-    background-position: 0 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0 50%;
-  }
 }
