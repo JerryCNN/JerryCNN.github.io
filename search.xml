@@ -1,6 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>我的hexo博客</title>
+    <url>/2020/07/05/%E6%88%91%E7%9A%84hexo%E5%8D%9A%E5%AE%A2/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="我的hexo博客"><a href="#我的hexo博客" class="headerlink" title="我的hexo博客"></a>我的hexo博客</h1><p> 前言</p>
+<p> 为什么选择hexo?</p>
+<p>我是一个在美高读书的学生党，自己在网上学过一些flask和react的知识，我本来想自己用react来搭建一个自给自足的博客，但是掌握的知识还是不够。然后我就想用个博客的框架来搭，选择很多，有wordpress，hugo，JekyII等等。具体可以等每个网站都看了再决定，我选择hexo因为他简洁，方便而且有我喜欢的主题。hexo有很多很有意思的插件可以让博客变得瞬间高大上，主要是安装特别方便，下载然后改一两行代码就行了。</p>
+<a id="more"></a>
+
+<p>wordpress 官网 <a href="http://www.wordpress.org" target="_blank" rel="noopener">www.wordpress.org</a><br>hexo 官网 <a href="http://www.hexo.io" target="_blank" rel="noopener">www.hexo.io</a><br>JekyII官网 <a href="http://www.jekyll.com" target="_blank" rel="noopener">www.jekyll.com</a><br>hugo 官网 <a href="http://www.gohugo.org" target="_blank" rel="noopener">www.gohugo.org</a><br>vuepress 官网 vuepress.vuejs.org</p>
+<h2 id="搭建环境"><a href="#搭建环境" class="headerlink" title="搭建环境"></a>搭建环境</h2><p> Hexo是高效的静态站点生成框架，它基于Node.js。通过Hexo，你可以直接使用Markdown语法来撰写博客。相信很多小伙伴写工程都写过README.md文件吧，对，就是这个格式的！写完后只需两三条命令即可将生成的网页上传到你的github上，然后别人就可以看到你的网页啦。</p>
+<h3 id="安装-Node-js"><a href="#安装-Node-js" class="headerlink" title="安装 Node.js"></a>安装 Node.js</h3><p><img src="https://railsware.com/blog/wp-content/uploads/2018/09/2400%D1%851260-rw-blog-node-js.png" alt="node"></p>
+<p>下载链接 <a href="https://nodejs.org/en/" target="_blank" rel="noopener">https://nodejs.org/en/</a> （在官网上看到会有两个版本的node.js，没有什么大的区别）</p>
+<p>下载好了之后一路点击<strong>Next</strong>直到显示安装成功。<br>然后打开终端（cmd）输入 <code>node -v</code> 和 <code>npm -v</code>，如果显示了版本号码的话就是成功了。</p>
+<h3 id="安装-Git"><a href="#安装-Git" class="headerlink" title="安装 Git"></a>安装 Git</h3><p>很难解释Git到底是什么东西。简单来说就是一个能把自己的文件传输到Github，把别人分享的文件从Github下载下来的工具。</p>
+<p>我知道的有两种下载方式</p>
+<ul>
+<li>1 网页下载 – <a href="https://git-scm.com/download" target="_blank" rel="noopener">下载地址</a></li>
+<li>2 使用 pip下载<br>在cmd里输入<code>pip install git</code><br>完成后输入 <code>git -v</code>检查是否安装成功</li>
+</ul>
+<h3 id="安装-Hexo"><a href="#安装-Hexo" class="headerlink" title="安装 Hexo"></a>安装 Hexo</h3><ol>
+<li>首先找到一个合适的目录，新建一个文件夹，名字自己取。如果比较懒可以像我一样直接放在桌面上。<code>/Users/jerry/Desktop/vegetable_blog</code></li>
+<li>打开cmd，cd 到自己创建的blog文件夹，然后输入<code>npm install -g hexo-cli</code>，安装完以后就可以使用hexo关键词的命令比如 <code>hexo init</code></li>
+<li>完成后输入<code>hexo -v</code>检查是否安装成功<br>tips：     这里安装可能会出现错误，名为 <code>EACCES: permission denied</code><br>一般来说有两种解决的方法</li>
+</ol>
+<ul>
+<li>重新安装<strong>Node.js</strong>（我不推荐这样，因为我自己重装了好几遍还是没用）</li>
+<li>更换安装全局Node的目录，具体的过程在<a href="https://docs.npmjs.com/resolving-eacces-permissions-errors-when-installing-packages-globally" target="_blank" rel="noopener">这个链接</a>（可能有点难懂里面的原理，但是不用担心，我也不懂，copy and paste就行了）</li>
+</ul>
+<ol start="4">
+<li><p>安装成功后，就可以开始初步搭建自己的博客了！初始化博客，输入<code>hexo init</code>初始化文件夹，接着输入<code>npm install</code>安装必备的组件。输入<code>hexo g</code>生成静态网页，然后输入<code>hexo s</code>打开本地服务器，然后浏览器打开<a href="http://localhost:4000/" target="_blank" rel="noopener">http://localhost:4000/</a>，就可以看到自己的博客啦。<br><img src="https://qiniu.cuiqingcai.com/2019-09-20-064939.png" alt="效果图"><br>输入 <code>ctrl c</code>关闭本地服务器</p>
+</li>
+<li><p>到了这一步，其实博客的所有基础都已经打好了，剩下的就是美化和部署了。</p>
+</li>
+</ol>
+<h3 id="部署到Github上"><a href="#部署到Github上" class="headerlink" title="部署到Github上"></a>部署到Github上</h3><p> 首先你需要一个Github的账号，我就不特地说明怎么注册了。<br> 进入到自己的Github页面，点击右上角 new repository<br> <img src="https://guides.github.com/activities/hello-world/create-new-repo.png" alt="new"><br> 这里千万记得repository的名字是你的 github账号名字 + github.io，如果不一样的话，网页会出现404。</p>
+<p>然后你能看到自己的SSH key<br><img src="https://pow123.github.io/Getting-Started-Git/fig/setup-repo-github.png" alt=""><br>这样一来先前的准备都做好了。</p>
+<p>打开自己blog的文件夹找到一个名为<code>_config.yml</code>的文件，然后搜索关键词 <strong>deployment</strong>，在deployment下面输入两行代码（记得冒号后面要空格）：<br><code>type：git</code><br><code>repo: ssh key（之前提到的）</code></p>
+<p>保存之后，在cmd输入<code>hexo d</code>，然后会要求你输入你的github账号和密码，显示成功后，在浏览器里输入repository的名字 （github账号 + github.io） 如果显示的是404，可以等一会儿再试，部署需要点时间，如果过了两三个小时还不行，那就说明之前的一步做错了。顺你好运！</p>
+<h3 id="参考"><a href="#参考" class="headerlink" title="参考"></a>参考</h3><p><a href="https://www.bilibili.com/video/BV1Yb411a7ty?from=search&amp;seid=12246668039399567739" target="_blank" rel="noopener">https://www.bilibili.com/video/BV1Yb411a7ty?from=search&amp;seid=12246668039399567739</a></p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>]]></content>
+      <categories>
+        <category>hexo</category>
+      </categories>
+      <tags>
+        <tag>我</tag>
+        <tag>博客</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>我的第一篇文章</title>
     <url>/2020/07/01/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h2 id="The-first-day-of-Web-Blogging-2020-7-1"><a href="#The-first-day-of-Web-Blogging-2020-7-1" class="headerlink" title="The first day of Web Blogging 2020/7/1"></a>The first day of Web Blogging 2020/7/1</h2><p>Hello everyone, this is Jerry Cai, a senior high schooler in Bullis school. I am interested in programming and would like to be a algorithm engineer in the future.</p>

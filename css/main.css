@@ -1200,7 +1200,7 @@ pre .javascript .function {
 }
 .links-of-author a::before,
 .links-of-author span.exturl::before {
-  background: #70571d;
+  background: #7808ff;
   border-radius: 50%;
   content: ' ';
   display: inline-block;
@@ -2647,4 +2647,20 @@ canvas {
   height: auto;
   width: auto;
   z-index: -1;
+}
+.back-to-top {
+  right: 60px;
+  width: 70px;
+  height: 900px;
+  top: -900px;
+  bottom: unset;
+  transition: all 0.5s ease-in-out;
+  background: url("/images/scroll.png");
+}
+.back-to-top > i {
+  display: none;
+}
+.back-to-top.back-to-top-on {
+  bottom: unset;
+  top: calc(100vh - 900px - 200px);
 }

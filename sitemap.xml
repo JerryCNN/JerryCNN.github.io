@@ -2,28 +2,35 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   
   <url>
-    <loc>http://yoursite.com/about/index.html</loc>
+    <loc>https://jerrycnn.github.io/2020/07/05/%E6%88%91%E7%9A%84hexo%E5%8D%9A%E5%AE%A2/</loc>
+    
+    <lastmod>2020-07-05T19:31:24.407Z</lastmod>
+    
+  </url>
+  
+  <url>
+    <loc>https://jerrycnn.github.io/about/index.html</loc>
     
     <lastmod>2020-07-03T03:03:49.493Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://yoursite.com/2020/07/01/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</loc>
+    <loc>https://jerrycnn.github.io/2020/07/01/%E6%88%91%E7%9A%84%E7%AC%AC%E4%B8%80%E7%AF%87%E6%96%87%E7%AB%A0/</loc>
     
     <lastmod>2020-07-03T02:55:04.889Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://yoursite.com/categories/index.html</loc>
+    <loc>https://jerrycnn.github.io/categories/index.html</loc>
     
     <lastmod>2020-07-03T02:54:47.792Z</lastmod>
     
   </url>
   
   <url>
-    <loc>http://yoursite.com/tags/index.html</loc>
+    <loc>https://jerrycnn.github.io/tags/index.html</loc>
     
     <lastmod>2020-07-03T02:54:37.929Z</lastmod>
     
