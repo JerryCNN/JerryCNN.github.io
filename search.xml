@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>Learning</title>
+    <url>/2020/07/10/Learning/</url>
+    <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="Reinforcement-learning-–-Upper-Confidence-Bound"><a href="#Reinforcement-learning-–-Upper-Confidence-Bound" class="headerlink" title="Reinforcement learning – Upper Confidence Bound"></a>Reinforcement learning – <strong>Upper Confidence Bound</strong></h1><p>This is my notes and my understanding of one of the algorithms in Reinforcement learning – UCB – Upper Confidence Bound. </p>
+<h2 id="Multi-Armed-Bandit"><a href="#Multi-Armed-Bandit" class="headerlink" title="Multi-Armed Bandit"></a>Multi-Armed Bandit</h2><p>let’s say that you are a gambler, and you are facing a Bandit with 5 arms, for each arm there’s a different probability of winning money. Maybe the first arm has 50% and the second arm has 53%. As a gambler, you want to find out which one possess the highest probability of winning money so that you can be <strong>Rich</strong>. But the same time, you don’t want to spent too many money in searching.</p>
+<a id="more"></a>
+
+<p><img src="https://miro.medium.com/max/742/1*Tt8A6mP98ibBlrlFD5UJxg.png" alt=""> </p>
+<p>This question can be extended to many situations, for example a company wants to decide which one is the best advertisment for their product among five different advertising plan. In this case, the company wants to choose the plan with the most user click, because that shows the plan is attractive enough. what’s more, they don’t want to spent a lot resources to determine it. </p>
+<p>Any queston related to choosing something can be simplyfied to Multi_Armed Bandit. </p>
+<h1 id="UCB-–-Upper-Confidence-Bound"><a href="#UCB-–-Upper-Confidence-Bound" class="headerlink" title="UCB – Upper Confidence Bound"></a>UCB – Upper Confidence Bound</h1><p>UCB is one of the Bandit algorithm, dealing with choices. The mechnics behind this algorithm is confidence interval which is introduced in AP stats.</p>
+<h2 id="what-is-confidence-interval-skip-if-you-have-already-know-this"><a href="#what-is-confidence-interval-skip-if-you-have-already-know-this" class="headerlink" title="what is confidence interval ?(skip if you have already know this)"></a>what is confidence interval ?(skip if you have already know this)</h2><p>If you have never enrolled in a AP stats class, don’t worry, after reading this sectionn you will have what you need to understand UCB. In statistics, a confidence interval is a type of estimate computed from the statistics of the observed data. In other words, it’s a interval that contains the true parameter. </p>
+<p>For example, a 95% confidence innterval for the mean of all hig schools height is (140cm – 220cm). First, we have no way of obtaining every high schooler’s height in US, so we take a sample that is representative of the whole population and estimate the true mean from this sample. Second, 95% means that the probability of the true mean lies between 140 - 220 is 95%, in other words, if you take 100 representive sample, 95 of them will contain the true mean.</p>
+<h2 id="UCB-and-Multi-Armed-Bandit"><a href="#UCB-and-Multi-Armed-Bandit" class="headerlink" title="UCB and Multi-Armed-Bandit"></a>UCB and Multi-Armed-Bandit</h2><p>Back to the 5 arms bandit, for each arm there’s a differennt probability of winning money. Let’s say that we have already do 1000 trials for each arm and concluded a distribution for it. (below)<br><img src="https://i.stack.imgur.com/04Ggq.jpg" alt=""><br> From the graph, it’s obvious that the <strong>fifth</strong> arm is the best one, because it has the highest mean, which means the highest probability of winning money. But for a gambler, you don’t have money to do 1000 trials with each arm. </p>
+<h3 id="Mechanics"><a href="#Mechanics" class="headerlink" title="Mechanics"></a>Mechanics</h3><p>The UCB first draw a same board confidence interval for all the arms which has very high certainty contain the true mean and updating the interval based each rounds of data fed in. Then the algorithm will choose the one with the highest upper bound. The algorithm will constantly choosing the one with the highest upper bound after the end each round. With more and more data feed in, the ad that has been chosen the highest times is the one we are looking for.</p>
+<p>The graph below gives the formula of defining confidence interval. The cennter of the confidence interval is always the mean of the data currently have.<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmhq7tax8j31ia0u04qp.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmhq7tax8j31ia0u04qp.jpg"></p>
+<h3 id="Example"><a href="#Example" class="headerlink" title="Example"></a>Example</h3><p>Important here, the initial confidence interval for each arm is the same.<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmbdw71oyj31nm0u0wx5.jpg" alt=""><br>In this graph, the red line represent the estimate mean for each arm, and the grey box is the upper bound and the lower bound. They construct a connfidence interval, and the different color line represent the true mean of each arm.</p>
+<p>Second, since the upper bound for each interval is the same, doesn’t matter which one we start. if we start with D3, and the data shows that in the first round D3 was not clicked, then the confidence interval for D3 will be moved down and shorten.(becasue the winning probability’s range is shorten based on current data)<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmbs2jin3j31na0u0h5h.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmbs2jin3j31na0u0h5h.jpg"></p>
+<p>The UCB algorithm will take in data for rounds, for example the first round, D1 and D5 are chosen and the others are not, then the confidence interval for each one is going to be different. And after the end of the round, UCB will record the ad with highest upper bound, and start the next round.</p>
+<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>maybe it’s hard to understand UCB in words, or maybe I am just bad at explaininng things. So I will put it into code which I hope can make more sense to you!</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">//get the data</span><br><span class="line">df = pd.read_csv(<span class="string">'Ads_CTR_Optimisation.csv'</span>)</span><br></pre></td></tr></tbody></table></figure>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmhd8hiqqj30lw0xg453.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmhd8hiqqj30lw0xg453.jpg"><br>This example is a company wants to decide which ads is the most attractive one among the ten. 0 in dataset represent the user did not click, 1 is the opposite.</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="comment">## how many rounds </span></span><br><span class="line">N = <span class="number">10000</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># how many kinds of ads</span></span><br><span class="line">d = <span class="number">10</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#a list used to record the selection of ads</span></span><br><span class="line">ads_selected = []</span><br><span class="line"></span><br><span class="line"><span class="comment">#a list recording how many times the ad is chosen for each kind</span></span><br><span class="line">number_of_selection = [<span class="number">0</span>]*d</span><br><span class="line"></span><br><span class="line"><span class="comment">#recrod the rewards received for each ad, in this case, its either 1 or 0</span></span><br><span class="line">sums_of_rewards = [<span class="number">0</span>]*d</span><br><span class="line"></span><br><span class="line">total_reward = <span class="number">0</span></span><br></pre></td></tr></tbody></table></figure>
+<p>In short, N is how many times we wants to try to know which one possess the greatest probability. And, ads_selected is the list or results, in UCB, the ads that has been chosen the most times is the most attractive one, so the most common number in ads_selected is the best ad.</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">    <span class="comment">##initialize</span></span><br><span class="line">    ad = <span class="number">0</span></span><br><span class="line">    max_upper_bound = <span class="number">0</span> </span><br><span class="line">    <span class="comment">##start looping to find out which one's confidence intervak --- average_reward + delta i</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,d):</span><br><span class="line">        <span class="keyword">if</span> (number_of_selection[i] &gt; <span class="number">0</span>):</span><br><span class="line">            average_reward = sums_of_rewards[i] / number_of_selection[i]</span><br><span class="line">            delta_i = math.sqrt(<span class="number">3</span>/<span class="number">2</span> * math.log(n+<span class="number">1</span>) / number_of_selection[i])</span><br><span class="line">            upper_bound = average_reward + delta_i</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            upper_bound = <span class="number">1e400</span></span><br><span class="line">       <span class="comment">## the way to find the highest Upper bound in each round      </span></span><br><span class="line">        <span class="keyword">if</span> (upper_bound &gt; max_upper_bound):</span><br><span class="line">            max_upper_bound = upper_bound</span><br><span class="line">            ad = i</span><br><span class="line">    <span class="comment">## updating the selections  </span></span><br><span class="line">    ads_selected.append(ad)</span><br><span class="line">    <span class="comment">## update the number of selections of the chosen ad</span></span><br><span class="line">    number_of_selection[ad] = number_of_selection[ad] + <span class="number">1</span></span><br><span class="line">    <span class="comment">## read from the dataset if the ad has been clicked</span></span><br><span class="line">    reward = df.values[n,ad]</span><br><span class="line">    <span class="comment">## updating the rewards for the chosen ad</span></span><br><span class="line">    sums_of_rewards[ad] = sums_of_rewards[ad] + reward</span><br><span class="line">    total_reward += reward</span><br></pre></td></tr></tbody></table></figure>
+<p>Here, we first need to find out the approximated mean, which is the total rewards of this ad / how many times this ad are selected. And then, it follows the formula I gave above. </p>
+<p>Important part to point out in code.</p>
+<ol>
+<li>the average_reward is constantly changing based on the change in Sums_of_reward and the number of selections.</li>
+<li>when the algorithm start, each ad has the same confidence level and the number of selections for each ad is 0, which means impossible to get the average reward. I set the upper bound to be very large when the number of selections is 0(it will not affect the confidence interval because in each round the confidence interval is recalculated)  and the algorithm will loop through the first round to have a more precise interval and it will record the one with highest upper bound.</li>
+</ol>
+<p>Now let’s visualize the power of UCB</p>
+<figure class="highlight python"><table><tbody><tr><td class="code"><pre><span class="line">plt.hist(ads_selected)</span><br><span class="line">plt.title(<span class="string">'Histogram of ads selections'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Ads'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Number of times each ad was selected'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></tbody></table></figure>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggmip2q5hij30n20fcq4a.jpg" alt=""><br>it’s obvious that ads 4 is the one we are looking for.</p>
+<p>Thank you for reading my notes on Reinforcement learning, I am just starting, so please forgive me if there’s anything confusing or worng. </p>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>]]></content>
+      <categories>
+        <category>Notes</category>
+      </categories>
+      <tags>
+        <tag>Machine learning</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>我的hexo博客</title>
     <url>/2020/07/05/%E6%88%91%E7%9A%84hexo%E5%8D%9A%E5%AE%A2/</url>
     <content><![CDATA[<link rel="stylesheet" class="aplayer-secondary-style-marker" href="/assets/css/APlayer.min.css"><script src="/assets/js/APlayer.min.js" class="aplayer-secondary-script-marker"></script><h1 id="我的hexo博客"><a href="#我的hexo博客" class="headerlink" title="我的hexo博客"></a>我的hexo博客</h1><p> 前言</p>
@@ -62,8 +123,8 @@
         <category>hexo</category>
       </categories>
       <tags>
-        <tag>博客</tag>
         <tag>我</tag>
+        <tag>博客</tag>
       </tags>
   </entry>
   <entry>
