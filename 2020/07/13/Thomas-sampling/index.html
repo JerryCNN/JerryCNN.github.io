@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 4.2.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/vegi_32.ico">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/vegi_16.ico">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+  <link rel="stylesheet" href="/lib/pace/pace-theme-center-atom.min.css">
+  <script src="/lib/pace/pace.min.js"></script>
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"jerrycnn.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":false,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="Reinforcement learning – Thomas SamplingThis is the continue of the previous article, which talks about UCB algorithm and Multi-Armed Bandit. My suggestion is to read that before you read this one, wh">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Thomas sampling">
+<meta property="og:url" content="https://jerrycnn.github.io/2020/07/13/Thomas-sampling/index.html">
+<meta property="og:site_name" content="Vegetable Blog">
+<meta property="og:description" content="Reinforcement learning – Thomas SamplingThis is the continue of the previous article, which talks about UCB algorithm and Multi-Armed Bandit. My suggestion is to read that before you read this one, wh">
+<meta property="og:locale" content="en_US">
+<meta property="og:image" content="https://www.topbots.com/wp-content/uploads/2019/05/cover_multi_armed_bandit_1600px_web-1280x640.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggpzvk3fl1j31wq0u0qr6.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq01b2hw1j32050u01c9.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq12km8wyj320i0u04hx.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq16bgxtgj32280u0tqn.jpg">
+<meta property="og:image" content="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq1t028uij30na0fc3zt.jpg">
+<meta property="article:published_time" content="2020-07-13T21:32:17.000Z">
+<meta property="article:modified_time" content="2020-07-13T21:33:39.720Z">
+<meta property="article:author" content="Jerry Cai">
+<meta property="article:tag" content="Machine learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://www.topbots.com/wp-content/uploads/2019/05/cover_multi_armed_bandit_1600px_web-1280x640.jpg">
+
+<link rel="canonical" href="https://jerrycnn.github.io/2020/07/13/Thomas-sampling/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'en'
+  };
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+    
+      if (NexT.utils.hasMobileUA()) return;
+    
+    let time, hidden, visible, title = document.title;
+    let favicon = document.querySelector('link[rel="icon"]');
+    
+      hidden = 'φ(*￣0￣) 你不爱我了！';
+      visible = '你还是爱我的！';
+    
+    let random = t => t[Math.floor(Math.random() * t.length)];
+    const change = () => {
+      if (document.hidden) {
+        favicon.setAttribute('href', '/images/vegi_32.ico');
+        
+          document.title = hidden;
+        
+        clearTimeout(time);
+      } else {
+        favicon.setAttribute('href', '/images/vegi_32.ico');
+        
+          document.title = visible;
+        
+        time = setTimeout(() => {
+          document.title = title;
+        }, 2019);
+      }
+    }
+    document.addEventListener('visibilitychange', change, false);
+  });
+</script>
+
+  <title>Thomas sampling | Vegetable Blog</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">Vegetable Blog</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">one is never to old to lean</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="tags fa-fw"></i>Tags<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="th fa-fw"></i>Categories<span class="badge">3</span></a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="archive fa-fw"></i>Archives<span class="badge">5</span></a>
+
+  </li>
+  </ul>
+</nav>
+
+
+
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="en">
+    <link itemprop="mainEntityOfPage" href="https://jerrycnn.github.io/2020/07/13/Thomas-sampling/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.png">
+      <meta itemprop="name" content="Jerry Cai">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Vegetable Blog">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Thomas sampling
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2020-07-13 17:32:17 / Modified: 17:33:39" itemprop="dateCreated datePublished" datetime="2020-07-13T17:32:17-04:00">2020-07-13</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Notes/" itemprop="url" rel="index"><span itemprop="name">Notes</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="Symbols count in article">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">Symbols count in article: </span>
+              <span>5.2k</span>
+            </span>
+            <span class="post-meta-item" title="Reading time">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">Reading time &asymp;</span>
+              <span>5 mins.</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Reinforcement-learning-–-Thomas-Sampling"><a href="#Reinforcement-learning-–-Thomas-Sampling" class="headerlink" title="Reinforcement learning – Thomas Sampling"></a>Reinforcement learning – <strong>Thomas Sampling</strong></h1><p>This is the continue of the previous article, which talks about UCB algorithm and Multi-Armed Bandit. My suggestion is to read that before you read this one, which gives you a clearer understanding.</p>
+<a id="more"></a>
+<h2 id="Recap"><a href="#Recap" class="headerlink" title="Recap"></a>Recap</h2><p>UCB and Thomas Sampling are two effective algorithms used to solve a gambling problem. A gambler walked into a casino with the desire to be <strong>Rich</strong> by playing bandit machine, but the casino has five identical bandit machines. He wants to know whcih one has the highest probability of winning money. Trying without stragedy is only wasting money, so he has to decide a stragedy which can help him determine the best machine in a short time.<br><img src="https://www.topbots.com/wp-content/uploads/2019/05/cover_multi_armed_bandit_1600px_web-1280x640.jpg" alt=""></p>
+<h2 id="Thomas-Sampling"><a href="#Thomas-Sampling" class="headerlink" title="Thomas Sampling"></a>Thomas Sampling</h2><p>Thomas Sampling is a easy and effective way of solving this question, since it can be realized in one line of code. </p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np </span><br><span class="line"><span class="keyword">import</span> pymc </span><br><span class="line">choice = np.argmax(pymc.rbeta(<span class="number">1</span> + wins, <span class="number">1</span> + trials - wins)) </span><br><span class="line">wins[choice] += <span class="number">1</span> </span><br><span class="line">trials += <span class="number">1</span></span><br></pre></td></tr></tbody></table></figure>
+<p>Now, let’s talk about the mechanics behind Thomas Sampling (it’s a intuition for the algorithm, not for the math concepts behind it.)</p>
+<ol>
+<li>Thomas Sampling suppose that each bandit has its own distribution of probability of winning money, some of the center may be higher than the other. we call the true mean <strong>p</strong>.</li>
+<li>By constantly trying, you can secure a range, a interval which you can have confidence in saying that the true mean lies in between.(The confidence interval talked about in UCB)</li>
+<li>Then how can we decide the distribution of the probability. We need to introduce beat distribution here, which takes in two parameter, wins and loses. <strong>Beta(wins, lose)</strong></li>
+<li>Each machine has its own Beta parameter, in each round of trying, select one machine and tey it, then record the result, if gain money, then add 1 to the wins, or add 1 to the loses.</li>
+</ol>
+<h2 id="Explanition"><a href="#Explanition" class="headerlink" title="Explanition"></a>Explanition</h2><p>I think you should be confused, don’t worry, I will use some graphs for you to better understand.<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggpzvk3fl1j31wq0u0qr6.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggpzvk3fl1j31wq0u0qr6.jpg"><br>In this graph, we have three distribution based on 4 rounds of trails, the middle straight line are the true winning probability in each machine, which the algorithm doesn’t know. Here, each color part represent the beta distribution created by the 4 rounds of data. Then the Machine will randomly select a value from each distribution.<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq01b2hw1j32050u01c9.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq01b2hw1j32050u01c9.jpg"><br>we can imagine this selection process as a simulation ran by the computer, in this simulation the algorithm will choose the highest because it seems like its the best one to play. In this case, the algorithm will choose the green one. </p>
+<p>After choosing the highest one, the algorithm will go to the dataset and then read the actual value of that machine in that round.<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq12km8wyj320i0u04hx.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq12km8wyj320i0u04hx.jpg"><br>This green point is the actual value of that machine in that round, and then the Green distribution will be changed since one more value are added to the Beta(win,lose). </p>
+<p>This is what Thomas sampling are doing in each round, after many rounds, the distribution can be shortened narrow enough to deternmine which one has the highest probability. (like this)<br><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq16bgxtgj32280u0tqn.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq16bgxtgj32280u0tqn.jpg"> </p>
+<h2 id="Code"><a href="#Code" class="headerlink" title="Code"></a>Code</h2><p>Now, let’s translate what we have learned into code, which I believe can give you a more clear understanding of Thomas Sampling.</p>
+<p>Imagine that you are a employee at a advertisement company and your boss wants you to decide which advertisment are the best one to advocating for your product among 10 different types.</p>
+<p>You need to know which advertisement can be most attractive, and the way you determine it’s degree of attractiveness is through the number of clicks.</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">## prepartion</span></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> pandas <span class="keyword">as</span> pd</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line">df = pd.read_csv(<span class="string">'Ads_CTR_Optimisation.csv'</span>)</span><br></pre></td></tr></tbody></table></figure>
+<p>First, Import necessary libraries and the practice dataset we are using.</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">N = <span class="number">600</span></span><br><span class="line"><span class="comment">## how many rounds the algorithm are doing</span></span><br><span class="line">d = <span class="number">10</span></span><br><span class="line"><span class="comment">## how many kinds of advertisements</span></span><br><span class="line">ads_selected = []</span><br><span class="line"><span class="comment">## keep track of the selection of advertisement in each round </span></span><br><span class="line">number_of_reward1 = [<span class="number">0</span>]*d</span><br><span class="line"><span class="comment">## keep track of the winning(clicked) number of each advertisement</span></span><br><span class="line">number_of_reward0 = [<span class="number">0</span>]*d</span><br><span class="line"><span class="comment">## keep tack of the losing(not clicked) nunmber of each advertisement</span></span><br><span class="line">total_rewards = <span class="number">0</span></span><br></pre></td></tr></tbody></table></figure>
+<p>Second, this is basically the same set up as in UCB, the only difference is that in Thomas Sampling we have to keep track of the number of winning times and losing times in order to build the Beta distribution.</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">for</span> n <span class="keyword">in</span> range(<span class="number">0</span>,N):</span><br><span class="line">	<span class="comment">## initialize </span></span><br><span class="line">    ad = <span class="number">0</span></span><br><span class="line">    max_random = <span class="number">0</span></span><br><span class="line">    <span class="comment">## start rounds</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>,d):</span><br><span class="line">    <span class="comment">## use a function in random class to create a beta distribution and select a value, inputs are win and lose(the plus here mean to make two parameter greater than 0, since the Betavariate function did not take 0 as parameter.)</span></span><br><span class="line">        random_beta = random.betavariate((number_of_reward1[i]+<span class="number">1</span>),(number_of_reward0[i]+<span class="number">1</span>))</span><br><span class="line">        <span class="comment">## selecting the biggest value in this round</span></span><br><span class="line">        <span class="keyword">if</span> (random_beta &gt; max_random):</span><br><span class="line">            max_random = random_beta</span><br><span class="line">            ad = i</span><br><span class="line">    <span class="comment">## record the selection</span></span><br><span class="line">    ads_selected.append(ad)</span><br><span class="line">    <span class="comment">## get the actual value of that machine in the dataset</span></span><br><span class="line">    reward = df.values[n,ad]</span><br><span class="line">    </span><br><span class="line">    <span class="comment">## change the parameter of winning or losing, necessary to change the distributionn</span></span><br><span class="line">    <span class="keyword">if</span> reward == <span class="number">1</span>:</span><br><span class="line">        number_of_reward1[ad] += <span class="number">1</span></span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        number_of_reward0[ad] += <span class="number">1</span></span><br><span class="line">        </span><br><span class="line">    total_rewards += reward</span><br></pre></td></tr></tbody></table></figure>
+
+<p>Third, sarting looping through each rounds and each advertisement, the <code>ads_selected</code> list will record all the selection, and the one with highest selection number is the most attractive advertisement among 10.</p>
+<p>Let’s visualize the results.</p>
+<figure class="highlight python"><table><tbody><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">plt.hist(ads_selected)</span><br><span class="line">plt.title(<span class="string">'Histogram of ads selections'</span>)</span><br><span class="line">plt.xlabel(<span class="string">'Ads'</span>)</span><br><span class="line">plt.ylabel(<span class="string">'Number of times each ad was selected'</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></tbody></table></figure>
+<p><img src="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq1t028uij30na0fc3zt.jpg" alt="https://tva1.sinaimg.cn/large/007S8ZIlgy1ggq1t028uij30na0fc3zt.jpg"><br>It’s obvious that advertisement 4 has the highest click number.</p>
+<h2 id="Concluding"><a href="#Concluding" class="headerlink" title="Concluding"></a>Concluding</h2><p>Thomas sampling and UCB are the two well known algorithms in Reinforcement learning, both are effective, and both are different. We can see that in UCB, the algorithm need 5000 trails to get the result, while Thomas Sampling only requires 600 trails to see the comparison. But there’s indeed no better one between these two, it depends on the situations.</p>
+<p>I hope you get some insights from this article abour Thomas Sampling, please forgive me if there’s anything wrong or misleading. Thanks for Reading!!!!</p>
+<h1 id="Reference"><a href="#Reference" class="headerlink" title="Reference"></a>Reference</h1><ol>
+<li><a href="https://www.udemy.com/course/machinelearning/learn/lecture/6456840#questions/10873200" target="_blank" rel="noopener">https://www.udemy.com/course/machinelearning/learn/lecture/6456840#questions/10873200</a></li>
+<li><a href="https://cosx.org/2017/05/bandit-and-recommender-systems/" target="_blank" rel="noopener">https://cosx.org/2017/05/bandit-and-recommender-systems/</a></li>
+</ol>
+<script>
+        document.querySelectorAll('.github-emoji')
+          .forEach(el => {
+            if (!el.dataset.src) { return; }
+            const img = document.createElement('img');
+            img.style = 'display:none !important;';
+            img.src = el.dataset.src;
+            img.addEventListener('error', () => {
+              img.remove();
+              el.style.color = 'inherit';
+              el.style.backgroundImage = 'none';
+              el.style.background = 'none';
+            });
+            img.addEventListener('load', () => {
+              img.remove();
+            });
+            document.body.appendChild(img);
+          });
+      </script>
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>Post author:  </strong>Jerry Cai
+  </li>
+  <li class="post-copyright-link">
+    <strong>Post link: </strong>
+    <a href="https://jerrycnn.github.io/2020/07/13/Thomas-sampling/" title="Thomas sampling">https://jerrycnn.github.io/2020/07/13/Thomas-sampling/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>Copyright Notice:  </strong>All articles in this blog are licensed under <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> unless stating additionally.
+  </li>
+</ul>
+</div>
+
+        
+
+  <div class="followme">
+    <p>Welcome to my other publishing channels</p>
+
+    <div class="social-list">
+
+        <div class="social-item">
+          <a target="_blank" class="social-link" href="/atom.xml">
+            <span class="icon">
+              <i class="fa fa-rss"></i>
+            </span>
+
+            <span class="label">RSS</span>
+          </a>
+        </div>
+    </div>
+  </div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Machine-learning/" rel="tag"><i class="fa fa-tag"></i># Machine learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2020/07/10/Learning/" rel="prev" title="Learning">
+      <i class="fa fa-chevron-left"></i> Learning
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Reinforcement-learning-–-Thomas-Sampling"><span class="nav-number">1.</span> <span class="nav-text">Reinforcement learning – Thomas Sampling</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Recap"><span class="nav-number">1.1.</span> <span class="nav-text">Recap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Thomas-Sampling"><span class="nav-number">1.2.</span> <span class="nav-text">Thomas Sampling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Explanition"><span class="nav-number">1.3.</span> <span class="nav-text">Explanition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Code"><span class="nav-number">1.4.</span> <span class="nav-text">Code</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Concluding"><span class="nav-number">1.5.</span> <span class="nav-text">Concluding</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#Reference"><span class="nav-number">2.</span> <span class="nav-text">Reference</span></a></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="Jerry Cai"
+      src="/images/avatar.png">
+  <p class="site-author-name" itemprop="name">Jerry Cai</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">5</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">3</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/JerryCNN" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;JerryCNN" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/deed.zh" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2020</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">蔡延校</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="Symbols count total">17k</span>
+  
+  <span id="sitetime"></span>
+  <script language=javascript>
+    function siteTime(){
+      window.setTimeout("siteTime()", 1000);
+      var seconds = 1000;
+      var minutes = seconds * 60;
+      var hours = minutes * 60;
+      var days = hours * 24;
+      var years = days * 365;
+      var today = new Date();
+      var todayYear = today.getFullYear();
+      var todayMonth = today.getMonth()+1;
+      var todayDate = today.getDate();
+      var todayHour = today.getHours();
+      var todayMinute = today.getMinutes();
+      var todaySecond = today.getSeconds();
+      /* Date.UTC() -- 返回date对象距世界标准时间(UTC)1970年1月1日午夜之间的毫秒数(时间戳)
+      year - 作为date对象的年份，为4位年份值
+      month - 0-11之间的整数，做为date对象的月份
+      day - 1-31之间的整数，做为date对象的天数
+      hours - 0(午夜24点)-23之间的整数，做为date对象的小时数
+      minutes - 0-59之间的整数，做为date对象的分钟数
+      seconds - 0-59之间的整数，做为date对象的秒数
+      microseconds - 0-999之间的整数，做为date对象的毫秒数 */
+      var t1 = Date.UTC(2020,07,01,15,00,00); //北京时间2018-2-13 00:00:00
+      var t2 = Date.UTC(todayYear,todayMonth,todayDate,todayHour,todayMinute,todaySecond);
+      var diff = t2-t1;
+      var diffYears = Math.floor(diff/years);
+      var diffDays = Math.floor((diff/days)-diffYears*365);
+      var diffHours = Math.floor((diff-(diffYears*365+diffDays)*days)/hours);
+      var diffMinutes = Math.floor((diff-(diffYears*365+diffDays)*days-diffHours*hours)/minutes);
+      var diffSeconds = Math.floor((diff-(diffYears*365+diffDays)*days-diffHours*hours-diffMinutes*minutes)/seconds);
+      document.getElementById("sitetime").innerHTML=" 已运行"+/*diffYears+" 年 "+*/diffDays+" 天 "+diffHours+" 小时 "+diffMinutes+" 分钟 "+diffSeconds+" 秒";
+    }
+    siteTime();
+  </script>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="Reading time total">15 mins.</span>
+</div>
+
+<script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='255,182,193' opacity='0.8' zIndex='-1' count='200' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"log":false,"model":{"jsonPath":"/live2dw/assets/shizuku.model.json"},"display":{"position":"right","width":200,"height":400},"mobile":{"show":true},"react":{"opacity":1}});</script></body>
+</html>
+
+
+<canvas class="fireworks" style="position: fixed;left: 0;top: 0;z-index: 1; pointer-events: none;" ></canvas> 
+<script type="text/javascript" src="//cdn.bootcss.com/animejs/2.2.0/anime.min.js"></script> 
+<script type="text/javascript" src="/js/crash_cheat.js"></script>
+<script type="text/javascript" src="/js/fireworks.js"></script>
+<!--崩溃欺骗-->
+<!-- 
+<canvas id="canvas" width="1440" height="900" ></canvas>
+<script type="text/javascript" src="/js/DigitalRain.js"></script> -->
